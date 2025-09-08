@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Before After Comparison</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kamens/jQuery-TwentyTwenty@master/twentytwenty.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #f0f0f0;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    h1 {
+      font-size: 1.5em;
+      color: #333;
+    }
+    .container {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      overflow: hidden;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Before vs After（AIアップスケーリング比較）</h1>
+  <div class="container">
+    <div class="twentytwenty-container">
+      <img src="before.jpg" alt="Before">
+      <img src="after.jpg" alt="After">
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/kamens/jQuery-TwentyTwenty@master/jquery.twentytwenty.js"></script>
+  <script>
+    $(window).on("load", function() {
+      $(".twentytwenty-container").twentytwenty();
+    });
+  </script>
+</body>
+</html>
