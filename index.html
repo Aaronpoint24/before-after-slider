@@ -39,8 +39,8 @@
       height: 100%;
       object-fit: cover;
     }
-    /* Before画像：右側から隠す */
-    .before-img-wrapper {
+    /* After画像（元々全面）→ 右から隠れる */
+    .after-img-wrapper {
       position: absolute;
       top: 0;
       left: 0;
@@ -48,19 +48,18 @@
       height: 100%;
       overflow: hidden;
     }
-    .before-img-wrapper img {
-      clip-path: inset(0 0 0 50%);
+    .after-img-wrapper img {
+      clip-path: inset(0 50% 0 0); /* 初期状態：右半分だけ見える */
     }
-    /* After画像：左側だけ表示 */
-    .after-img-wrapper {
+    /* Before画像（常に全面表示）*/
+    .before-img-wrapper {
       position: absolute;
       top: 0;
       left: 0;
-      width: 50%;
+      width: 100%;
       height: 100%;
-      overflow: hidden;
-      border-right: 3px solid white;
     }
+    /* スライダーハンドル */
     .slider-handle {
       position: absolute;
       top: 50%;
@@ -114,11 +113,11 @@
   <h1>Before vs After（AIアップスケーリング比較）</h1>
   <div class="container" id="sliderContainer">
     <div class="image-container">
-      <!-- Before画像（常に全面） -->
-      <div class="before-img-wrapper" id="beforeWrapper">
+      <!-- 常に表示されるBefore画像（下層） -->
+      <div class="before-img-wrapper">
         <img src="before.png" alt="Before">
       </div>
-      <!-- After画像（左側に表示） -->
+      <!-- 上に乗るAfter画像（右から隠れる） -->
       <div class="after-img-wrapper" id="afterWrapper">
         <img src="after.png" alt="After">
       </div>
@@ -134,7 +133,6 @@
     const container = document.getElementById('sliderContainer');
     const handle = document.getElementById('handle');
     const afterWrapper = document.getElementById('afterWrapper');
-    const beforeWrapper = document.getElementById('beforeWrapper');
 
     function moveSlider(clientX) {
       const rect = container.getBoundingClientRect();
@@ -144,11 +142,8 @@
 
       const percent = (pos / rect.width) * 100;
 
-      // After画像の幅
-      afterWrapper.style.width = percent + '%';
-
-      // Before画像のクリッピング（右から隠れる）
-      beforeWrapper.style.clipPath = `inset(0 ${100 - percent}% 0 0)`;
+      // After画像：右側から隠れていく（左が広がる）
+      afterWrapper.style.clipPath = `inset(0 ${100 - percent}% 0 0)`;
 
       // ハンドル位置
       handle.style.left = percent + '%';
@@ -187,12 +182,11 @@
       document.removeEventListener('touchend', onTouchEnd);
     }
 
-    // 初期化
+    // 初期化（中央）
     window.addEventListener('load', () => {
       const rect = container.getBoundingClientRect();
       const initPercent = 50;
-      afterWrapper.style.width = '50%';
-      beforeWrapper.style.clipPath = 'inset(0 50% 0 0)';
+      afterWrapper.style.clipPath = 'inset(0 50% 0 0)';
       handle.style.left = '50%';
     });
   </script>
