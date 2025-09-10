@@ -38,6 +38,7 @@
       width: 100%; height: 100%;
       background: url('before.png') no-repeat center;
       background-size: cover;
+      clip-path: inset(0 0 0 50%); /* 左側だけ表示 */
     }
     .after-img {
       position: absolute;
@@ -102,7 +103,7 @@
   <h1>Before vs After（AIアップスケーリング比較）</h1>
   <div class="container" id="sliderContainer">
     <div class="image-container">
-      <div class="before-img"></div>
+      <div class="before-img" id="beforeImage"></div>
       <div class="after-img" id="afterImage"></div>
       <div class="slider-handle" id="handle"></div>
       <div class="label before">Before</div>
@@ -114,6 +115,7 @@
     const container = document.getElementById('sliderContainer');
     const handle = document.getElementById('handle');
     const afterImage = document.getElementById('afterImage');
+    const beforeImage = document.getElementById('beforeImage');
 
     function moveSlider(clientX) {
       const rect = container.getBoundingClientRect();
@@ -122,7 +124,14 @@
       if (pos > rect.width) pos = rect.width;
 
       const percent = (pos / rect.width) * 100;
+
+      // After画像：左から広がる
       afterImage.style.width = percent + '%';
+
+      // Before画像：右から隠れる（clip-pathで制御）
+      beforeImage.style.clipPath = `inset(0 0 0 ${100 - percent}%)`;
+
+      // ハンドル位置
       handle.style.left = percent + '%';
     }
 
@@ -161,8 +170,9 @@
     // 初期化
     window.addEventListener('load', () => {
       const rect = container.getBoundingClientRect();
-      const initWidth = rect.width * 0.5;
+      const initPercent = 50;
       afterImage.style.width = '50%';
+      beforeImage.style.clipPath = 'inset(0 0 0 50%)';
       handle.style.left = '50%';
     });
   </script>
