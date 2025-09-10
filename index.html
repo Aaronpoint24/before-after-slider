@@ -1,194 +1,187 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Before After Slider</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f5f7fa;
-      padding: 20px;
-      text-align: center;
-    }
-    h1 {
-      color: #2c3e50;
-      margin-bottom: 15px;
-      font-size: 1.4em;
-    }
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      position: relative;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-    }
-    .image-container {
-      position: relative;
-      width: 100%;
-      height: 0;
-      padding-bottom: 75%; /* 4:3 アスペクト比 */
-    }
-    .image-container img {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    /* After画像（元々全面）→ 右から隠れる */
-    .after-img-wrapper {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-    }
-    .after-img-wrapper img {
-      clip-path: inset(0 50% 0 0); /* 初期状態：右半分だけ見える */
-    }
-    /* Before画像（常に全面表示）*/
-    .before-img-wrapper {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-    }
-    /* スライダーハンドル */
-    .slider-handle {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 50px;
-      height: 50px;
-      background: white;
-      border: 3px solid #3498db;
-      border-radius: 50%;
-      cursor: ew-resize;
-      z-index: 10;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-    .slider-handle::before,
-    .slider-handle::after {
-      content: '';
-      width: 8px;
-      height: 12px;
-      border: solid #3498db;
-      border-width: 0 3px 3px 0;
-    }
-    .slider-handle::before {
-      transform: rotate(-45deg);
-      margin-right: 3px;
-    }
-    .slider-handle::after {
-      transform: rotate(135deg);
-      margin-left: 3px;
-    }
-    .label {
-      position: absolute;
-      top: 12px;
-      color: white;
-      background: rgba(0,0,0,0.5);
-      padding: 6px 14px;
-      border-radius: 16px;
-      font-size: 14px;
-      font-weight: bold;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.4);
-      z-index: 2;
-    }
-    .label.before { left: 12px; }
-    .label.after { right: 12px; }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Responsive Image Compare Slider</title>
+<style>
+body {
+  margin:0;
+  background:#111;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  font-family:sans-serif;
+  color:#eee;
+}
+
+.container {
+  text-align:center;
+  width: 90%;
+  max-width: 900px;
+}
+
+.frame {
+  position:relative;
+  overflow:hidden;
+  border-radius:12px;
+  margin-bottom: 8px;
+}
+
+.frame img {
+  position:absolute;
+  top:0;
+  left:0;
+  display:block;
+}
+
+.clip {
+  position:absolute;
+  top:0;
+  left:0;
+  overflow:hidden;
+}
+
+.divider {
+  position:absolute;
+  top:0;
+  width:2px;
+  height:100%;
+  background:rgba(255,255,255,0.8);
+  pointer-events:none;
+}
+
+.handle {
+  position:absolute;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  background:#fff;
+  border:2px solid #000;
+  cursor:ew-resize;
+  z-index:10;
+}
+
+.labels {
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:4px;
+  font-weight:bold;
+}
+</style>
 </head>
 <body>
-  <h1>Before vs After（AIアップスケーリング比較）</h1>
-  <div class="container" id="sliderContainer">
-    <div class="image-container">
-      <!-- 常に表示されるBefore画像（下層） -->
-      <div class="before-img-wrapper">
-        <img src="before.png" alt="Before">
-      </div>
-      <!-- 上に乗るAfter画像（右から隠れる） -->
-      <div class="after-img-wrapper" id="afterWrapper">
-        <img src="after.png" alt="After">
-      </div>
-      <!-- スライダーハンドル -->
-      <div class="slider-handle" id="handle"></div>
-      <!-- ラベル -->
-      <div class="label before">Before</div>
-      <div class="label after">After</div>
-    </div>
+<div class="container">
+  <div class="labels">
+    <span>Before</span>
+    <span>After</span>
   </div>
+  <div class="frame" id="cmp" data-before="before.png" data-after="after.png">
+    <img id="baseImg" alt="before">
+    <div id="clip" class="clip">
+      <img id="topImg" alt="after">
+    </div>
+    <div id="divider" class="divider"></div>
+    <div id="handle" class="handle"></div>
+  </div>
+</div>
 
-  <script>
-    const container = document.getElementById('sliderContainer');
-    const handle = document.getElementById('handle');
-    const afterWrapper = document.getElementById('afterWrapper');
+<script>
+(function(){
+  const cmp = document.getElementById('cmp');
+  const baseImg = document.getElementById('baseImg');
+  const topImg = document.getElementById('topImg');
+  const clip = document.getElementById('clip');
+  const handle = document.getElementById('handle');
+  const divider = document.getElementById('divider');
 
-    function moveSlider(clientX) {
-      const rect = container.getBoundingClientRect();
-      let pos = clientX - rect.left;
-      if (pos < 0) pos = 0;
-      if (pos > rect.width) pos = rect.width;
+  baseImg.src = cmp.dataset.before || 'before.png';
+  topImg.src = cmp.dataset.after || 'after.png';
 
-      const percent = (pos / rect.width) * 100;
+  let percent = 50;
 
-      // After画像：右側から隠れていく（左が広がる）
-      afterWrapper.style.clipPath = `inset(0 ${100 - percent}% 0 0)`;
+  function fitFrame(){
+    if(!baseImg.naturalWidth || !baseImg.naturalHeight) return;
 
-      // ハンドル位置
-      handle.style.left = percent + '%';
-    }
+    const maxWidth = cmp.parentElement.clientWidth;
+    const scale = Math.min(1, maxWidth / baseImg.naturalWidth);
 
-    // ドラッグ操作
-    handle.addEventListener('mousedown', (e) => {
-      e.preventDefault();
-      document.addEventListener('mousemove', onMouseMove);
-      document.addEventListener('mouseup', onMouseUp);
-    });
+    const w = baseImg.naturalWidth * scale;
+    const h = baseImg.naturalHeight * scale;
 
-    function onMouseMove(e) {
-      moveSlider(e.clientX);
-    }
+    cmp.style.width = w + 'px';
+    cmp.style.height = h + 'px';
 
-    function onMouseUp() {
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
-    }
+    baseImg.style.width = w + 'px';
+    baseImg.style.height = h + 'px';
 
-    // タッチ対応
-    handle.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      document.addEventListener('touchmove', onTouchMove);
-      document.addEventListener('touchend', onTouchEnd);
-    });
+    topImg.style.width = w + 'px';
+    topImg.style.height = h + 'px';
 
-    function onTouchMove(e) {
-      const touch = e.touches[0];
-      moveSlider(touch.clientX);
-    }
+    clip.style.height = h + 'px';
+    divider.style.height = h + 'px';
+    handle.style.top = (h/2) + 'px';
 
-    function onTouchEnd() {
-      document.removeEventListener('touchmove', onTouchMove);
-      document.removeEventListener('touchend', onTouchEnd);
-    }
+    update(percent);
+  }
 
-    // 初期化（中央）
-    window.addEventListener('load', () => {
-      const rect = container.getBoundingClientRect();
-      const initPercent = 50;
-      afterWrapper.style.clipPath = 'inset(0 50% 0 0)';
-      handle.style.left = '50%';
-    });
-  </script>
+  function update(p){
+    percent = Math.max(0, Math.min(100, p));
+    const w = cmp.clientWidth;
+    clip.style.width = (w*percent/100)+'px';
+    divider.style.left = (w*percent/100)+'px';
+    handle.style.left = (w*percent/100)+'px';
+  }
+
+  baseImg.addEventListener('load', fitFrame);
+  window.addEventListener('resize', fitFrame);
+  if(baseImg.complete) fitFrame();
+
+  // ドラッグ/タッチ操作
+  let dragging = false;
+
+  function startDrag(e){
+    e.preventDefault();
+    dragging = true;
+  }
+
+  function moveDrag(e){
+    if(!dragging) return;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const rect = cmp.getBoundingClientRect();
+    update((clientX - rect.left)/rect.width*100);
+  }
+
+  function endDrag(e){
+    dragging = false;
+  }
+
+  // 開始イベントは handle
+  handle.addEventListener('pointerdown', startDrag);
+  handle.addEventListener('touchstart', startDrag, {passive:false});
+
+  // 移動・終了イベントは document に付与 → PC/スマホ両対応
+  document.addEventListener('pointermove', moveDrag);
+  document.addEventListener('pointerup', endDrag);
+  document.addEventListener('touchmove', moveDrag, {passive:false});
+  document.addEventListener('touchend', endDrag);
+
+  // クリックでジャンプ
+  cmp.addEventListener('pointerdown', e=>{
+    if(e.target === handle) return;
+    const rect = cmp.getBoundingClientRect();
+    update((e.clientX - rect.left)/rect.width*100);
+  });
+  cmp.addEventListener('touchstart', e=>{
+    if(e.target === handle) return;
+    const rect = cmp.getBoundingClientRect();
+    update((e.touches[0].clientX - rect.left)/rect.width*100);
+  });
+
+})();
+</script>
 </body>
 </html>
