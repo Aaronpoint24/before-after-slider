@@ -3,71 +3,167 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Before After Comparison</title>
-  
-  <!-- ローカルのTwentyTwenty CSS -->
-  <link rel="stylesheet" href="twentytwenty.css" />
-  
+  <title>Before After Slider</title>
   <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f7fa;
       padding: 20px;
-      background: #f0f0f0;
-      font-family: Arial, sans-serif;
       text-align: center;
     }
     h1 {
-      font-size: 1.5em;
-      color: #333;
-      margin-bottom: 10px;
+      color: #2c3e50;
+      margin-bottom: 15px;
+      font-size: 1.4em;
     }
     .container {
-      width: 100%;
       max-width: 900px;
       margin: 0 auto;
-      overflow: hidden;
-      border: 2px solid #ccc;
-      border-radius: 8px;
       position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
     }
-    /* スライダーが読み込まれるまでのプレースホルダー対策 */
-    .twentytwenty-container img {
-      display: block;
+    .image-container {
+      position: relative;
       width: 100%;
-      height: auto;
+      height: 0;
+      padding-bottom: 75%; /* 4:3 アスペクト比 */
+      background: #eee;
+    }
+    .before-img {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: url('before.png') no-repeat center;
+      background-size: cover;
+    }
+    .after-img {
+      position: absolute;
+      top: 0; left: 0;
+      width: 50%; height: 100%;
+      background: url('after.png') no-repeat center;
+      background-size: cover;
+      border-right: 3px solid white;
+    }
+    .slider-handle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 50px;
+      height: 50px;
+      background: white;
+      border: 3px solid #3498db;
+      border-radius: 50%;
+      cursor: ew-resize;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .slider-handle::before,
+    .slider-handle::after {
+      content: '';
+      width: 8px;
+      height: 12px;
+      border: solid #3498db;
+      border-width: 0 3px 3px 0;
+    }
+    .slider-handle::before {
+      transform: rotate(-45deg);
+      margin-right: 3px;
+    }
+    .slider-handle::after {
+      transform: rotate(135deg);
+      margin-left: 3px;
+    }
+    .label {
+      position: absolute;
+      top: 12px;
+      color: white;
+      background: rgba(0,0,0,0.5);
+      padding: 6px 14px;
+      border-radius: 16px;
+      font-size: 14px;
+      font-weight: bold;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    }
+    .label.before { left: 12px; }
+    .label.after { right: 12px; }
+    @media (max-width: 600px) {
+      .slider-handle { width: 40px; height: 40px; }
     }
   </style>
 </head>
 <body>
   <h1>Before vs After（AIアップスケーリング比較）</h1>
-  <div class="container">
-    <div class="twentytwenty-container">
-      <img src="before.png" alt="Before">
-      <img src="after.png" alt="After">
+  <div class="container" id="sliderContainer">
+    <div class="image-container">
+      <div class="before-img"></div>
+      <div class="after-img" id="afterImage"></div>
+      <div class="slider-handle" id="handle"></div>
+      <div class="label before">Before</div>
+      <div class="label after">After</div>
     </div>
   </div>
 
-  <!-- jQuery（CDN） -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  
-  <!-- ローカルのTwentyTwentyスクリプト -->
-  <script src="jquery.twentytwenty.js"></script>
-  
-  <!-- スタイルシートも改めて読み込み（キャッシュ対策） -->
-  <link rel="stylesheet" href="twentytwenty.css">
-
   <script>
-    // DOM読み込み後に即座に初期化（loadイベントに依存しない）
-    $(document).ready(function() {
-      $(".twentytwenty-container").twentytwenty({
-        default_offset_pct: 0.5,     // 初期位置：中央
-        orientation: 'horizontal',   // 水平方向にスライド
-        before_label: 'Before',      // 左側ラベル
-        after_label: 'After',        // 右側ラベル
-        no_overlay: false,           // ラベルを表示
-        move_with_handle_only: false, // ハンドル以外でもドラッグ可能
-        click_to_move: true          // クリックで移動可能に
-      });
+    const container = document.getElementById('sliderContainer');
+    const handle = document.getElementById('handle');
+    const afterImage = document.getElementById('afterImage');
+
+    function moveSlider(clientX) {
+      const rect = container.getBoundingClientRect();
+      let pos = clientX - rect.left;
+      if (pos < 0) pos = 0;
+      if (pos > rect.width) pos = rect.width;
+
+      const percent = (pos / rect.width) * 100;
+      afterImage.style.width = percent + '%';
+      handle.style.left = percent + '%';
+    }
+
+    handle.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+    });
+
+    function onMouseMove(e) {
+      moveSlider(e.clientX);
+    }
+
+    function onMouseUp() {
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    }
+
+    // タッチ対応
+    handle.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      document.addEventListener('touchmove', onTouchMove);
+      document.addEventListener('touchend', onTouchEnd);
+    });
+
+    function onTouchMove(e) {
+      const touch = e.touches[0];
+      moveSlider(touch.clientX);
+    }
+
+    function onTouchEnd() {
+      document.removeEventListener('touchmove', onTouchMove);
+      document.removeEventListener('touchend', onTouchEnd);
+    }
+
+    // 初期化
+    window.addEventListener('load', () => {
+      const rect = container.getBoundingClientRect();
+      const initWidth = rect.width * 0.5;
+      afterImage.style.width = '50%';
+      handle.style.left = '50%';
     });
   </script>
 </body>
