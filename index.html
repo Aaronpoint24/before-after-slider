@@ -30,22 +30,35 @@
       width: 100%;
       height: 0;
       padding-bottom: 75%; /* 4:3 アスペクト比 */
-      background: #eee;
     }
-    .before-img {
+    .image-container img {
       position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: url('before.png') no-repeat center;
-      background-size: cover;
-      clip-path: inset(0 0 0 50%); /* 左側だけ表示 */
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
-    .after-img {
+    /* Before画像：右側から隠す */
+    .before-img-wrapper {
       position: absolute;
-      top: 0; left: 0;
-      width: 50%; height: 100%;
-      background: url('after.png') no-repeat center;
-      background-size: cover;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    .before-img-wrapper img {
+      clip-path: inset(0 0 0 50%);
+    }
+    /* After画像：左側だけ表示 */
+    .after-img-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 50%;
+      height: 100%;
+      overflow: hidden;
       border-right: 3px solid white;
     }
     .slider-handle {
@@ -91,21 +104,27 @@
       font-size: 14px;
       font-weight: bold;
       text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+      z-index: 2;
     }
     .label.before { left: 12px; }
     .label.after { right: 12px; }
-    @media (max-width: 600px) {
-      .slider-handle { width: 40px; height: 40px; }
-    }
   </style>
 </head>
 <body>
   <h1>Before vs After（AIアップスケーリング比較）</h1>
   <div class="container" id="sliderContainer">
     <div class="image-container">
-      <div class="before-img" id="beforeImage"></div>
-      <div class="after-img" id="afterImage"></div>
+      <!-- Before画像（常に全面） -->
+      <div class="before-img-wrapper" id="beforeWrapper">
+        <img src="before.png" alt="Before">
+      </div>
+      <!-- After画像（左側に表示） -->
+      <div class="after-img-wrapper" id="afterWrapper">
+        <img src="after.png" alt="After">
+      </div>
+      <!-- スライダーハンドル -->
       <div class="slider-handle" id="handle"></div>
+      <!-- ラベル -->
       <div class="label before">Before</div>
       <div class="label after">After</div>
     </div>
@@ -114,8 +133,8 @@
   <script>
     const container = document.getElementById('sliderContainer');
     const handle = document.getElementById('handle');
-    const afterImage = document.getElementById('afterImage');
-    const beforeImage = document.getElementById('beforeImage');
+    const afterWrapper = document.getElementById('afterWrapper');
+    const beforeWrapper = document.getElementById('beforeWrapper');
 
     function moveSlider(clientX) {
       const rect = container.getBoundingClientRect();
@@ -125,16 +144,17 @@
 
       const percent = (pos / rect.width) * 100;
 
-      // After画像：左から広がる
-      afterImage.style.width = percent + '%';
+      // After画像の幅
+      afterWrapper.style.width = percent + '%';
 
-      // Before画像：右から隠れる（clip-pathで制御）
-      beforeImage.style.clipPath = `inset(0 0 0 ${100 - percent}%)`;
+      // Before画像のクリッピング（右から隠れる）
+      beforeWrapper.style.clipPath = `inset(0 ${100 - percent}% 0 0)`;
 
       // ハンドル位置
       handle.style.left = percent + '%';
     }
 
+    // ドラッグ操作
     handle.addEventListener('mousedown', (e) => {
       e.preventDefault();
       document.addEventListener('mousemove', onMouseMove);
@@ -171,8 +191,8 @@
     window.addEventListener('load', () => {
       const rect = container.getBoundingClientRect();
       const initPercent = 50;
-      afterImage.style.width = '50%';
-      beforeImage.style.clipPath = 'inset(0 0 0 50%)';
+      afterWrapper.style.width = '50%';
+      beforeWrapper.style.clipPath = 'inset(0 50% 0 0)';
       handle.style.left = '50%';
     });
   </script>
