@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Before After Comparison</title>
   
-  <!-- ローカルCSS -->
+  <!-- ローカルのTwentyTwenty CSS -->
   <link rel="stylesheet" href="twentytwenty.css" />
   
   <style>
@@ -19,6 +19,7 @@
     h1 {
       font-size: 1.5em;
       color: #333;
+      margin-bottom: 10px;
     }
     .container {
       width: 100%;
@@ -27,6 +28,13 @@
       overflow: hidden;
       border: 2px solid #ccc;
       border-radius: 8px;
+      position: relative;
+    }
+    /* スライダーが読み込まれるまでのプレースホルダー対策 */
+    .twentytwenty-container img {
+      display: block;
+      width: 100%;
+      height: auto;
     }
   </style>
 </head>
@@ -39,15 +47,27 @@
     </div>
   </div>
 
-  <!-- jQuery -->
+  <!-- jQuery（CDN） -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   
-  <!-- ローカルJS -->
+  <!-- ローカルのTwentyTwentyスクリプト -->
   <script src="jquery.twentytwenty.js"></script>
   
+  <!-- スタイルシートも改めて読み込み（キャッシュ対策） -->
+  <link rel="stylesheet" href="twentytwenty.css">
+
   <script>
-    $(window).on("load", function() {
-      $(".twentytwenty-container").twentytwenty();
+    // DOM読み込み後に即座に初期化（loadイベントに依存しない）
+    $(document).ready(function() {
+      $(".twentytwenty-container").twentytwenty({
+        default_offset_pct: 0.5,     // 初期位置：中央
+        orientation: 'horizontal',   // 水平方向にスライド
+        before_label: 'Before',      // 左側ラベル
+        after_label: 'After',        // 右側ラベル
+        no_overlay: false,           // ラベルを表示
+        move_with_handle_only: false, // ハンドル以外でもドラッグ可能
+        click_to_move: true          // クリックで移動可能に
+      });
     });
   </script>
 </body>
