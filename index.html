@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Responsive Image Compare Slider</title>
+<title>Image Compare Slider</title>
 <style>
 body {
   margin:0;
@@ -17,30 +17,30 @@ body {
 }
 
 .container {
+  position: relative;
+  width: 100%;
+  max-width: 100vw;
   text-align:center;
-  width: 90%;
-  max-width: 900px;
 }
 
 .frame {
-  position:relative;
-  overflow:hidden;
-  border-radius:12px;
-  margin-bottom: 8px;
+  position: relative;
+  overflow: hidden;
+  margin: 0 auto;
 }
 
 .frame img {
-  position:absolute;
+  position: absolute;
   top:0;
   left:0;
   display:block;
 }
 
 .clip {
-  position:absolute;
+  position: absolute;
   top:0;
   left:0;
-  overflow:hidden;
+  overflow: hidden;
 }
 
 .divider {
@@ -65,21 +65,36 @@ body {
   z-index:10;
 }
 
+/* ラベルを画像左端と右端に固定 */
 .labels {
-  display:flex;
-  justify-content:space-between;
-  margin-bottom:4px;
-  font-weight:bold;
+  position: absolute;
+  top: 10px;
+  left: 0;
+  width: 100%;
+  padding: 0 10px;
+  z-index:20;
+  font-weight: bold;
+  display: flex;
+}
+
+.labels span:first-child {
+  flex: 1;
+  text-align: center;
+}
+
+.labels span:last-child {
+  flex: 1;
+  text-align: center;
 }
 </style>
 </head>
 <body>
 <div class="container">
-  <div class="labels">
-    <span>Before</span>
-    <span>After</span>
-  </div>
   <div class="frame" id="cmp" data-before="before.png" data-after="after.png">
+    <div class="labels">
+      <span>←Before</span>
+      <span>After→</span>
+    </div>
     <img id="baseImg" alt="before">
     <div id="clip" class="clip">
       <img id="topImg" alt="after">
@@ -106,9 +121,8 @@ body {
   function fitFrame(){
     if(!baseImg.naturalWidth || !baseImg.naturalHeight) return;
 
-    const maxWidth = cmp.parentElement.clientWidth;
+    const maxWidth = window.innerWidth;
     const scale = Math.min(1, maxWidth / baseImg.naturalWidth);
-
     const w = baseImg.naturalWidth * scale;
     const h = baseImg.naturalHeight * scale;
 
@@ -123,7 +137,7 @@ body {
 
     clip.style.height = h + 'px';
     divider.style.height = h + 'px';
-    handle.style.top = (h/2) + 'px';
+    handle.style.top = (h/2)+'px';
 
     update(percent);
   }
@@ -140,7 +154,6 @@ body {
   window.addEventListener('resize', fitFrame);
   if(baseImg.complete) fitFrame();
 
-  // ドラッグ/タッチ操作
   let dragging = false;
 
   function startDrag(e){
@@ -159,28 +172,24 @@ body {
     dragging = false;
   }
 
-  // 開始イベントは handle
   handle.addEventListener('pointerdown', startDrag);
   handle.addEventListener('touchstart', startDrag, {passive:false});
 
-  // 移動・終了イベントは document に付与 → PC/スマホ両対応
   document.addEventListener('pointermove', moveDrag);
   document.addEventListener('pointerup', endDrag);
   document.addEventListener('touchmove', moveDrag, {passive:false});
   document.addEventListener('touchend', endDrag);
 
-  // クリックでジャンプ
   cmp.addEventListener('pointerdown', e=>{
-    if(e.target === handle) return;
+    if(e.target===handle) return;
     const rect = cmp.getBoundingClientRect();
     update((e.clientX - rect.left)/rect.width*100);
   });
   cmp.addEventListener('touchstart', e=>{
-    if(e.target === handle) return;
+    if(e.target===handle) return;
     const rect = cmp.getBoundingClientRect();
     update((e.touches[0].clientX - rect.left)/rect.width*100);
   });
-
 })();
 </script>
 </body>
